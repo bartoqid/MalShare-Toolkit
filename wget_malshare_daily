@@ -17,6 +17,8 @@ import re
 import sys
 import string
 from datetime import datetime, date, timedelta
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 api_key =""
 
@@ -101,7 +103,7 @@ def pull_daily_list(sub_path):
         print url
         user_agent = {'User-agent': 'wget_malshare daily 1.0'}
 
-        r = requests.get(url, headers=user_agent)
+        r = requests.get(url, headers=user_agent, verify=False)
         for line in r.content.split('\n'):
             logging.debug("Yield line: %s" % line)
             yield line
@@ -126,7 +128,7 @@ def pull_file(file_hash, vxcage, outfolder):
         payload = {'action': 'getfile', 'api_key': api_key, 'hash' : file_hash }
         user_agent = {'User-agent': 'wget_malshare daily 1.0'}
 
-        r = requests.get(malshare_url, params=payload, headers=user_agent)
+        r = requests.get(malshare_url, params=payload, headers=user_agent, verify=False)
 
         sample = r.content
 
@@ -145,7 +147,7 @@ def pull_file(file_hash, vxcage, outfolder):
             vxcage_url = vxcage + "/malware/add"
             files = {'file': sample }
             payload = {'tags' : 'malshare'}
-            r = requests.post(vxcage_url, files=files, data=payload, headers=user_agent)
+            r = requests.post(vxcage_url, files=files, data=payload, headers=user_agent, verify=False)
             if r.json()['message'] == 'added':
                 logging.info("Uploaded %s to VXCage" % file_hash)
     except Exception as e:

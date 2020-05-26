@@ -8,6 +8,10 @@ import sys
 import logging
 import requests
 import argparse
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings()
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 api_key =""
 
@@ -36,7 +40,7 @@ def pull_file(file_hash, vxcage, api_key):
      payload = {'action': 'getfile', 'api_key': api_key, 'hash' : file_hash }
      user_agent = {'User-agent': 'wget_malshare daily 1.0'}
 
-     r = requests.get(malshare_url, params=payload, headers=user_agent)
+     r = requests.get(malshare_url, params=payload, headers=user_agent, verify=False)
 
      sample = r.content
 
@@ -53,7 +57,7 @@ def pull_file(file_hash, vxcage, api_key):
          vxcage_url = vxcage + "/malware/add"
          files = {'file': sample }
          payload = {'tags' : 'malshare'}
-         r = requests.post(vxcage_url, files=files, data=payload, headers=user_agent)
+         r = requests.post(vxcage_url, files=files, data=payload, headers=user_agent, verify=False)
          if r.json()['message'] == 'added':
              logging.info("Uploaded %s to VXCage" % file_hash)
     except Exception as e:
